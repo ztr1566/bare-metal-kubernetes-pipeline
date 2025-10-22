@@ -1,4 +1,4 @@
-# KubeFlow DevOps Platform 
+# Bare-Metal Kubernetes CI/CD Pipeline
 
 A complete enterprise-grade DevOps platform showcasing modern CI/CD practices, GitOps deployment, and comprehensive monitoring for Node.js applications on Kubernetes.
 
