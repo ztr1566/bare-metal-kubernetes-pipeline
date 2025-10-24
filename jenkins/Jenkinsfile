@@ -11,7 +11,7 @@ spec:
   - name: dockerhub-secret
   containers:
   - name: node
-    image: node:24-alpine
+    image: node:22-alpine
     command: ["cat"]
     tty: true
   - name: kaniko
@@ -46,7 +46,7 @@ spec:
 
     environment {
         DOCKER_REPO = "zizoo1566/my-node-app"
-        GIT_REPO_URL = "github.com/ztr1566/k8s-node-project.git"
+        GIT_REPO_URL = "https://github.com/ztr1566/bare-metal-kubernetes-pipeline.git"
     }
 
     stages {
@@ -90,7 +90,7 @@ spec:
                 container('git') {
                     withCredentials([usernamePassword(credentialsId: 'github-pat', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                         sh """
-                            git config --global --add safe.directory /home/jenkins/agent/workspace/k8s-nodejs-project
+                            git config --global --add safe.directory /home/jenkins/agent/workspace/bare-metal-kubernetes-pipeline
                             git config --global user.name "Jenkins Bot"
                             git config --global user.email "ci-bot@example.com"
                             
