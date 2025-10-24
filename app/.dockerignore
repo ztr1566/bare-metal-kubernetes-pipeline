@@ -1,9 +1,1 @@
-# Ignore dependencies, as they are installed inside the container
 node_modules
-
-# Ignore Git files
-.git
-.gitignore
-
-# Ignore local environment files
-.env

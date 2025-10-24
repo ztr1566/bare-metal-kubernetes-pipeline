@@ -10,6 +10,11 @@ const mydataSchema = new Schema(
     age: Number,
     country: String,
     gender: String,
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    }
   },
   { timestamps: true }
 );

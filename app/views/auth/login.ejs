@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <script src="/js/color-modes.js"></script>
+    <link rel="stylesheet" href="/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= title %></title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/dark-light.css" />
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bs-body-bg);
+        }
+        .auth-container {
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .auth-header h2 {
+            color: var(--bs-body-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .auth-header p {
+            color: var(--bs-secondary-color);
+            font-size: 14px;
+        }
+        .form-control {
+            border-radius: 6px;
+            padding: 12px 15px;
+        }
+        .input-group-text {
+            background: transparent;
+            border-left: 0;
+            cursor: pointer;
+        }
+        .form-control:focus {
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+        }
+        .btn-primary {
+            border-radius: 6px;
+            padding: 12px;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--bs-secondary-color);
+        }
+        .auth-footer a {
+            color: var(--bs-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../components/dark-light.ejs') %>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2><i class="bi bi-box-arrow-in-right"></i> Login</h2>
+            <p>Welcome back! Please login to your account.</p>
+        </div>
+
+        <% if (error && error.length > 0) { %>
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <% if (success && success.length > 0) { %>
+            <div class="alert alert-success" role="alert">
+                <i class="bi bi-check-circle-fill"></i> <%= success %>
+            </div>
+        <% } %>
+
+        <form action="/auth/login" method="POST" id="loginForm">
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    class="form-control" 
+                    id="email" 
+                    name="email" 
+                    placeholder="Enter your email"
+                    required
+                >
+                <div class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input 
+                        type="password" 
+                        class="form-control" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password"
+                        required
+                        style="border-right: 0;"
+                    >
+                    <span class="input-group-text" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                    </span>
+                </div>
+                <div class="invalid-feedback">Please enter your password.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="/auth/register">Register here</a>
+        </div>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Client-side validation
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+
+        // Email validation
+        function validateEmail(email) {
+            const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+            return re.test(email);
+        }
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+
+        // Form validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+
+            // Reset validation states
+            emailInput.classList.remove('is-invalid');
+            passwordInput.classList.remove('is-invalid');
+
+            // Validate email
+            if (!emailInput.value || !validateEmail(emailInput.value)) {
+                emailInput.classList.add('is-invalid');
+                isValid = false;
+            }
+
+            // Validate password
+            if (!passwordInput.value) {
+                passwordInput.classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

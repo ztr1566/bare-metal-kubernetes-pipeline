@@ -1,14 +1,11 @@
 <nav class="navbar bg-body-tertiary">
-  <div
-    class="container-fluid justify-content-center justify-content-md-between"
-  >
-    <a class="navbar-brand fw-medium fs-3 mb-1 mb-md-0">
-      <% if (status === "search") { %> Search <% } else if (status === "add") {
-      %> Add User <% } else if (status === "edit") { %> Edit User <% } else if
-      (status === "view") { %> View User <% } else { %> Dashboard <% } %>
-    </a>
+  <a class="navbar-brand fw-medium fs-3 mb-0">
+    <% if (status === "search") { %> Search <% } else if (status === "add") {
+    %> Add User <% } else if (status === "edit") { %> Edit User <% } else if
+    (status === "view") { %> View User <% } else { %> Dashboard <% } %>
+  </a>
 
-    <form action="/search" method="post" class="d-flex" role="search">
+  <form action="/search" method="post" class="d-flex" role="search">
       <input
         name="search"
         class="form-control me-2"

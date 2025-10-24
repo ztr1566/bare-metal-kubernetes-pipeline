@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <script src="/js/color-modes.js"></script>
+    <link rel="stylesheet" href="/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= title %></title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/dark-light.css" />
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bs-body-bg);
+            padding: 20px 0;
+        }
+        .auth-container {
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .auth-header h2 {
+            color: var(--bs-body-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .auth-header p {
+            color: var(--bs-secondary-color);
+            font-size: 14px;
+        }
+        .form-control {
+            border-radius: 6px;
+            padding: 12px 15px;
+        }
+        .input-group-text {
+            background: transparent;
+            border-left: 0;
+            cursor: pointer;
+        }
+        .form-control:focus {
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+        }
+        .btn-primary {
+            border-radius: 6px;
+            padding: 12px;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--bs-secondary-color);
+        }
+        .auth-footer a {
+            color: var(--bs-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        .password-strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: #ddd;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .password-strength-bar-fill {
+            height: 100%;
+            transition: all 0.3s;
+            width: 0%;
+        }
+        .strength-weak { background: #dc3545; width: 33%; }
+        .strength-medium { background: #ffc107; width: 66%; }
+        .strength-strong { background: #28a745; width: 100%; }
+        .password-requirements {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .password-requirements li {
+            list-style: none;
+            padding-left: 20px;
+            position: relative;
+        }
+        .password-requirements li:before {
+            content: '✗';
+            position: absolute;
+            left: 0;
+            color: #dc3545;
+        }
+        .password-requirements li.valid:before {
+            content: '✓';
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../components/dark-light.ejs') %>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2><i class="bi bi-person-plus"></i> Register</h2>
+            <p>Create a new account to get started.</p>
+        </div>
+
+        <% if (error && error.length > 0) { %>
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <% if (success && success.length > 0) { %>
+            <div class="alert alert-success" role="alert">
+                <i class="bi bi-check-circle-fill"></i> <%= success %>
+            </div>
+        <% } %>
+
+        <form action="/auth/register" method="POST" id="registerForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="fullName" class="form-label">Full Name (Optional)</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="fullName" 
+                    name="fullName" 
+                    placeholder="Enter your full name"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    class="form-control" 
+                    id="email" 
+                    name="email" 
+                    placeholder="Enter your email"
+                    required
+                >
+                <div class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input 
+                        type="password" 
+                        class="form-control" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Create a password"
+                        required
+                        style="border-right: 0;"
+                    >
+                    <span class="input-group-text" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                    </span>
+                </div>
+                <div class="password-strength-bar">
+                    <div class="password-strength-bar-fill" id="strengthBar"></div>
+                </div>
+                <div class="password-strength" id="strengthText"></div>
+                <ul class="password-requirements">
+                    <li id="req-length">At least 8 characters</li>
+                    <li id="req-uppercase">One uppercase letter</li>
+                    <li id="req-lowercase">One lowercase letter</li>
+                    <li id="req-number">One number</li>
+                    <li id="req-special">One special character (@$!%*?&)</li>
+                </ul>
+                <div class="invalid-feedback">Please enter a valid password.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="profilePhoto" class="form-label">Profile Photo (Optional)</label>
+                <input 
+                    type="file" 
+                    class="form-control" 
+                    id="profilePhoto" 
+                    name="profilePhoto"
+                    accept="image/*"
+                    onchange="previewPhoto(event)"
+                >
+                <div class="mt-2 text-center">
+                    <img id="photoPreview" src="/img/profile.png" alt="Preview" 
+                         style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid #ddd;">
+                </div>
+                <small class="text-muted">Accepted formats: JPG, PNG, GIF (Max 5MB)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <div class="input-group">
+                    <input 
+                        type="password" 
+                        class="form-control" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        placeholder="Confirm your password"
+                        required
+                        style="border-right: 0;"
+                    >
+                    <span class="input-group-text" id="toggleConfirmPassword">
+                        <i class="bi bi-eye"></i>
+                    </span>
+                </div>
+                <div class="invalid-feedback">Passwords do not match.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-person-plus"></i> Register
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="/auth/login">Login here</a>
+        </div>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Preview photo before upload
+        function previewPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('photoPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Client-side validation
+        const form = document.getElementById('registerForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+
+        // Email validation
+        function validateEmail(email) {
+            const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+            return re.test(email);
+        }
+
+        // Password validation
+        function validatePassword(password) {
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[@$!%*?&]/.test(password)
+            };
+
+            // Update requirement indicators
+            document.getElementById('req-length').classList.toggle('valid', requirements.length);
+            document.getElementById('req-uppercase').classList.toggle('valid', requirements.uppercase);
+            document.getElementById('req-lowercase').classList.toggle('valid', requirements.lowercase);
+            document.getElementById('req-number').classList.toggle('valid', requirements.number);
+            document.getElementById('req-special').classList.toggle('valid', requirements.special);
+
+            // Calculate strength
+            const validCount = Object.values(requirements).filter(v => v).length;
+            
+            strengthBar.className = 'password-strength-bar-fill';
+            if (validCount <= 2) {
+                strengthBar.classList.add('strength-weak');
+                strengthText.textContent = 'Weak password';
+                strengthText.style.color = '#dc3545';
+            } else if (validCount <= 4) {
+                strengthBar.classList.add('strength-medium');
+                strengthText.textContent = 'Medium password';
+                strengthText.style.color = '#ffc107';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = '#28a745';
+            }
+
+            return Object.values(requirements).every(v => v);
+        }
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+
+        toggleConfirmPassword.addEventListener('click', function() {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+
+        // Real-time password validation
+        passwordInput.addEventListener('input', function() {
+            validatePassword(this.value);
+        });
+
+        // Form validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+
+            // Reset validation states
+            emailInput.classList.remove('is-invalid');
+            passwordInput.classList.remove('is-invalid');
+            confirmPasswordInput.classList.remove('is-invalid');
+
+            // Validate email
+            if (!emailInput.value || !validateEmail(emailInput.value)) {
+                emailInput.classList.add('is-invalid');
+                isValid = false;
+            }
+
+            // Validate password
+            if (!passwordInput.value || !validatePassword(passwordInput.value)) {
+                passwordInput.classList.add('is-invalid');
+                isValid = false;
+            }
+
+            // Validate password match
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

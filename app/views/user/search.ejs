@@ -7,14 +7,13 @@
     <main class="d-flex flex-nowrap">
       <%- include('../components/sidebar.ejs', {status: 'search'}) %>
 
-      <section class="w-100">
+      <section>
         <%- include('../components/navbar.ejs') %> <% if (users.length === 0) {
         %>
         <h1 class="text-center mt-5 fw-bold fs-4">No data found</h1>
         <% } else { %>
         <table
-          style="width: 99%"
-          class="text-center mx-auto table mt-5 table-striped table-bordered"
+          class="text-center table mt-3 table-striped table-bordered"
         >
           <thead>
             <tr>

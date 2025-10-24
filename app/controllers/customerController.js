@@ -5,7 +5,7 @@ const customUser = require("../models/customerSchema");
 const user_get_index = (req, res) => {
   const status = "index";
   customUser
-    .find()
+    .find({ userId: req.session.userId })
     .then((users) => {
       res.render("index", {
         users,
@@ -22,7 +22,7 @@ const user_get_index = (req, res) => {
 const user_get_search = (req, res) => {
   const status = "search";
   customUser
-    .find()
+    .find({ userId: req.session.userId })
     .then((users) => {
       res.render("user/search.ejs", {
         users,
@@ -100,8 +100,12 @@ const user_update = (req, res) => {
 };
 
 const user_post_add = (req, res) => {
+  const customerData = {
+    ...req.body,
+    userId: req.session.userId
+  };
   customUser
-    .create(req.body)
+    .create(customerData)
     .then(() => {
       res.redirect("/");
     })
@@ -130,7 +134,10 @@ const user_post_search = (req, res) => {
   }
   customUser
     .find({
-      $or: queryConditions,
+      $and: [
+        { userId: req.session.userId },
+        { $or: queryConditions }
+      ]
     })
     .then((users) => {
       res.render("user/search.ejs", { users, moment, status, title: "Search" });

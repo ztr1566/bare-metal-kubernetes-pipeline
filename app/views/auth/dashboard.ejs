@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <script src="/js/color-modes.js"></script>
+    <link rel="stylesheet" href="/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= title %></title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/dark-light.css" />
+    <link href="/css/sidebars.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/myStyle.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <style>
+        .dashboard-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            transition: all 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../components/dark-light.ejs') %>
+
+    <main class="d-flex flex-nowrap">
+      <%- include('../components/sidebar.ejs', {status: 'dashboard'}) %>
+
+      <div class="container-fluid" style="padding: 20px;">
+        <% if (success && success.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i> <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <% if (error && error.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> <%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <!-- Welcome Header -->
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="bi bi-speedometer2 me-2"></i>Welcome back, <%= user.fullName || user.email.split('@')[0] %>!</h2>
+                    <p class="mb-0">Here's what's happening with your customers today.</p>
+                </div>
+                <div>
+                    <a href="/user/add.html" class="btn btn-light btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Add Customer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="dashboard-card card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-2 opacity-75">Total Customers</h6>
+                                <div class="stat-number"><%= stats.totalCustomers %></div>
+                            </div>
+                            <i class="bi bi-people stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="dashboard-card card text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-2 opacity-75">Average Age</h6>
+                                <div class="stat-number"><%= stats.ageStats.avgAge ? stats.ageStats.avgAge.toFixed(1) : '0' %></div>
+                            </div>
+                            <i class="bi bi-graph-up stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="dashboard-card card text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-2 opacity-75">Countries</h6>
+                                <div class="stat-number"><%= stats.countryStats.length %></div>
+                            </div>
+                            <i class="bi bi-globe stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="dashboard-card card text-white" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-2 opacity-75">Member Since</h6>
+                                <div style="font-size: 1.2rem; font-weight: 600;">
+                                    <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) %>
+                                </div>
+                            </div>
+                            <i class="bi bi-calendar-check stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <!-- Gender Distribution -->
+            <div class="col-md-6">
+                <div class="admin-card card">
+                    <div class="admin-card-header">
+                        <i class="bi bi-gender-ambiguous me-2"></i>Gender Distribution
+                    </div>
+                    <div class="card-body">
+                        <% if (stats.genderStats.length === 0) { %>
+                            <p class="text-center text-muted py-5">No data available. Add customers to see statistics.</p>
+                        <% } else { %>
+                            <div class="row">
+                                <% stats.genderStats.forEach(stat => { %>
+                                    <div class="col-6 text-center mb-3">
+                                        <% if (stat._id === 'male') { %>
+                                            <i class="bi bi-gender-male" style="font-size: 3rem; color: #667eea;"></i>
+                                        <% } else if (stat._id === 'female') { %>
+                                            <i class="bi bi-gender-female" style="font-size: 3rem; color: #f5576c;"></i>
+                                        <% } else { %>
+                                            <i class="bi bi-question-circle" style="font-size: 3rem; color: #6c757d;"></i>
+                                        <% } %>
+                                        <h3 class="mt-2 mb-0"><%= stat.count %></h3>
+                                        <p class="text-muted text-capitalize"><%= stat._id || 'Unknown' %></p>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar" style="width: <%= (stat.count / stats.totalCustomers * 100).toFixed(0) %>%; background: <%= stat._id === 'male' ? '#667eea' : '#f5576c' %>;"></div>
+                                        </div>
+                                        <small class="text-muted"><%= (stat.count / stats.totalCustomers * 100).toFixed(1) %>%</small>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Countries -->
+            <div class="col-md-6">
+                <div class="admin-card card">
+                    <div class="admin-card-header">
+                        <i class="bi bi-globe me-2"></i>Top 5 Countries
+                    </div>
+                    <div class="card-body">
+                        <% if (stats.countryStats.length === 0) { %>
+                            <p class="text-center text-muted py-5">No data available. Add customers to see statistics.</p>
+                        <% } else { %>
+                            <div class="list-group list-group-flush">
+                                <% stats.countryStats.forEach((country, index) => { %>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-primary rounded-circle me-3" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                                                <%= index + 1 %>
+                                            </span>
+                                            <strong><%= country._id || 'Unknown' %></strong>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-secondary me-2"><%= country.count %> customers</span>
+                                            <span class="text-muted"><%= (country.count / stats.totalCustomers * 100).toFixed(1) %>%</span>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Customers -->
+        <div class="admin-card card mb-4">
+            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-2"></i>Recent Customers</span>
+                <a href="/" class="btn btn-light btn-sm">View All</a>
+            </div>
+            <div class="card-body">
+                <% if (recentCustomers.length === 0) { %>
+                    <p class="text-center text-muted py-4">No customers yet. <a href="/user/add.html">Add your first customer</a></p>
+                <% } else { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Country</th>
+                                    <th>Gender</th>
+                                    <th>Age</th>
+                                    <th>Added</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentCustomers.forEach(customer => { %>
+                                    <tr>
+                                        <td><strong><%= customer.firstname %> <%= customer.lastname %></strong></td>
+                                        <td><%= customer.email %></td>
+                                        <td><%= customer.country %></td>
+                                        <td>
+                                            <% if (customer.gender === 'male') { %>
+                                                <i class="bi bi-gender-male text-primary"></i> Male
+                                            <% } else if (customer.gender === 'female') { %>
+                                                <i class="bi bi-gender-female text-danger"></i> Female
+                                            <% } else { %>
+                                                <%= customer.gender %>
+                                            <% } %>
+                                        </td>
+                                        <td><%= customer.age %></td>
+                                        <td><small class="text-muted"><%= new Date(customer.createdAt).toLocaleDateString() %></small></td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="/view/<%= customer._id %>" class="btn btn-outline-primary" title="View">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="/edit/<%= customer._id %>" class="btn btn-outline-secondary" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-3">
+            <div class="col-md-3">
+                <a href="/user/add.html" class="quick-action-card card text-center text-decoration-none h-100">
+                    <div class="card-body">
+                        <i class="bi bi-person-plus fs-1 text-primary"></i>
+                        <h6 class="mt-2 mb-0">Add Customer</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/search" class="quick-action-card card text-center text-decoration-none h-100">
+                    <div class="card-body">
+                        <i class="bi bi-search fs-1 text-success"></i>
+                        <h6 class="mt-2 mb-0">Search</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/" class="quick-action-card card text-center text-decoration-none h-100">
+                    <div class="card-body">
+                        <i class="bi bi-list-ul fs-1 text-info"></i>
+                        <h6 class="mt-2 mb-0">All Customers</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/account/settings" class="quick-action-card card text-center text-decoration-none h-100">
+                    <div class="card-body">
+                        <i class="bi bi-gear fs-1 text-warning"></i>
+                        <h6 class="mt-2 mb-0">Settings</h6>
+                    </div>
+                </a>
+            </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
