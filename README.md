@@ -177,7 +177,7 @@ helm repo add jenkins https://charts.jenkins.io
 helm install jenkins jenkins/jenkins -n jenkins --create-namespace
 
 # Get admin password
-kubectl get secret --namespace jenkins jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode
+kubectl get secret --namespace jenkins jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode; echo
 ```
 
 #### Required Jenkins Plugins
@@ -250,6 +250,8 @@ spec:
 # Install ArgoCD in dedicated namespace
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+kubectl get secret --namespace argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
 
 # Access ArgoCD UI
 kubectl port-forward svc/argocd-server -n argocd 8080:443
